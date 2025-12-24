@@ -1,0 +1,229 @@
+@startuml CampaignManagement_ClassDiagram
+
+title Campaign Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "MarketingPlatform.Core.Model.CampaignAggregate" {
+
+    class Campaign <<AggregateRoot>> {
+        +CampaignId: Guid
+        +BusinessId: Guid
+        +Name: string
+        +Description: string
+        +Slug: string
+        +Type: CampaignType
+        +Status: CampaignStatus
+        +StartDate: DateTimeOffset?
+        +EndDate: DateTimeOffset?
+        +CreatedAt: DateTimeOffset
+        +UpdatedAt: DateTimeOffset
+        +CreatedBy: Guid
+        --
+        +Create(name, type, businessId, userId): Campaign
+        +UpdateName(name): void
+        +UpdateDescription(description): void
+        +SetDuration(startDate, endDate): void
+        +Publish(): void
+        +Pause(): void
+        +Resume(): void
+        +Complete(): void
+        +Archive(): void
+        +Clone(newName): Campaign
+    }
+
+    class CampaignBranding <<Entity>> {
+        +CampaignBrandingId: Guid
+        +CampaignId: Guid
+        +LogoUrl: string
+        +PrimaryColor: string
+        +SecondaryColor: string
+        +FontFamily: string
+        +CustomCss: string
+        +CustomHtml: string
+        --
+        +ApplyLogo(logoUrl): void
+        +SetColors(primary, secondary): void
+        +SetCustomCss(css): void
+    }
+
+    class CampaignSettings <<Entity>> {
+        +CampaignSettingsId: Guid
+        +CampaignId: Guid
+        +AllowMultipleEntries: bool
+        +RequireEmailVerification: bool
+        +EnableRecaptcha: bool
+        +MaxEntriesPerUser: int?
+        --
+        +Update(settings): void
+    }
+
+    enum CampaignStatus {
+        Draft
+        Published
+        Paused
+        Completed
+        Archived
+    }
+
+    enum CampaignType {
+        Giveaway
+        Contest
+        Poll
+        Quiz
+        Form
+    }
+
+    class CampaignId <<ValueObject>> {
+        +Value: Guid
+        --
+        +CampaignId(value): CampaignId
+        +NewCampaignId(): CampaignId
+    }
+
+    class CampaignSlug <<ValueObject>> {
+        +Value: string
+        --
+        +CampaignSlug(value): CampaignSlug
+        +FromName(name): CampaignSlug
+    }
+
+    class CampaignDuration <<ValueObject>> {
+        +StartDate: DateTimeOffset?
+        +EndDate: DateTimeOffset?
+        --
+        +IsActive(): bool
+        +HasStarted(): bool
+        +HasEnded(): bool
+    }
+
+    Campaign "1" *-- "0..1" CampaignBranding
+    Campaign "1" *-- "1" CampaignSettings
+    Campaign --> CampaignStatus
+    Campaign --> CampaignType
+    Campaign --> CampaignId
+    Campaign --> CampaignSlug
+    Campaign --> CampaignDuration
+}
+
+package "MarketingPlatform.Core.Model.CampaignAggregate.Events" {
+
+    abstract class CampaignDomainEvent {
+        +EventId: Guid
+        +CampaignId: Guid
+        +Timestamp: DateTimeOffset
+        +UserId: Guid
+        +BusinessId: Guid
+    }
+
+    class CampaignCreated extends CampaignDomainEvent {
+        +Name: string
+        +Type: CampaignType
+    }
+
+    class CampaignPublished extends CampaignDomainEvent {
+        +PublishedAt: DateTimeOffset
+    }
+
+    class CampaignPaused extends CampaignDomainEvent {
+        +PausedAt: DateTimeOffset
+        +Reason: string
+    }
+
+    class CampaignCompleted extends CampaignDomainEvent {
+        +CompletedAt: DateTimeOffset
+        +TotalEntries: int
+    }
+
+    class CampaignDeleted extends CampaignDomainEvent {
+        +DeletedAt: DateTimeOffset
+    }
+}
+
+package "MarketingPlatform.Api.Features.Campaigns" {
+
+    class CreateCampaignCommand {
+        +Name: string
+        +Description: string
+        +Type: CampaignType
+        +StartDate: DateTimeOffset?
+        +EndDate: DateTimeOffset?
+    }
+
+    class CreateCampaignCommandHandler {
+        -context: IMarketingPlatformContext
+        +Handle(command): CampaignDto
+    }
+
+    class UpdateCampaignCommand {
+        +CampaignId: Guid
+        +Name: string
+        +Description: string
+        +StartDate: DateTimeOffset?
+        +EndDate: DateTimeOffset?
+    }
+
+    class GetCampaignQuery {
+        +CampaignId: Guid
+    }
+
+    class GetCampaignsQuery {
+        +BusinessId: Guid
+        +Status: CampaignStatus?
+        +Type: CampaignType?
+        +Page: int
+        +PageSize: int
+    }
+
+    class CampaignDto {
+        +CampaignId: Guid
+        +Name: string
+        +Description: string
+        +Type: string
+        +Status: string
+        +StartDate: DateTimeOffset?
+        +EndDate: DateTimeOffset?
+        +Slug: string
+        +Url: string
+        +EntryCount: int
+        +CreatedAt: DateTimeOffset
+    }
+
+    CreateCampaignCommandHandler --> Campaign : creates
+}
+
+package "MarketingPlatform.Api.Controllers" {
+
+    class CampaignsController {
+        -mediator: IMediator
+        --
+        +Create(command): ActionResult<CampaignDto>
+        +GetAll(query): ActionResult<PagedResult<CampaignDto>>
+        +GetById(id): ActionResult<CampaignDto>
+        +Update(id, command): ActionResult<CampaignDto>
+        +Delete(id): ActionResult
+        +Publish(id): ActionResult<CampaignDto>
+        +Pause(id): ActionResult<CampaignDto>
+        +Resume(id): ActionResult<CampaignDto>
+        +Complete(id): ActionResult<CampaignDto>
+    }
+
+    CampaignsController --> CreateCampaignCommand
+    CampaignsController --> UpdateCampaignCommand
+    CampaignsController --> GetCampaignQuery
+    CampaignsController --> GetCampaignsQuery
+}
+
+package "MarketingPlatform.Core" {
+
+    interface IMarketingPlatformContext {
+        +Campaigns: DbSet<Campaign>
+        +CampaignBrandings: DbSet<CampaignBranding>
+        +CampaignSettings: DbSet<CampaignSettings>
+        +SaveChangesAsync(): Task<int>
+    }
+}
+
+CreateCampaignCommandHandler --> IMarketingPlatformContext
+
+@enduml
