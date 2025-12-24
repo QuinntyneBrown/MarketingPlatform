@@ -1,0 +1,195 @@
+@startuml GiveawayContest_SequenceDiagram
+
+title Giveaway & Contest - Sequence Diagrams
+
+== Submit Entry ==
+
+actor Participant
+participant "Entry Page" as Frontend
+participant "GiveawaysController" as Controller
+participant "SubmitEntryHandler" as Handler
+participant "Entry" as EntryEntity
+participant "FraudDetectionService" as Fraud
+database "Database" as DB
+
+Participant -> Frontend: Fill entry form
+Participant -> Frontend: Click "Enter"
+
+Frontend -> Frontend: Validate form fields
+Frontend -> Controller: POST /api/giveaways/{id}/entries\n{email, name, formData, recaptchaToken}
+activate Controller
+
+Controller -> Handler: Handle(SubmitEntryCommand)
+activate Handler
+
+Handler -> Fraud: ValidateRecaptcha(token)
+activate Fraud
+Fraud --> Handler: RecaptchaResult
+deactivate Fraud
+
+alt Recaptcha Failed
+    Handler --> Controller: 400 Bad Request\n"Verification failed"
+else Recaptcha Passed
+    Handler -> DB: Check existing entries for email
+    DB --> Handler: Entry count
+
+    alt Entry limit reached
+        Handler -> EntryEntity: Raise EntryLimitReached event
+        Handler --> Controller: 400 Bad Request\n"Entry limit reached"
+    else Can enter
+        Handler -> EntryEntity: Entry.Create(giveawayId, participantData)
+        activate EntryEntity
+        EntryEntity -> EntryEntity: Validate()
+        EntryEntity -> EntryEntity: Raise EntrySubmitted event
+        EntryEntity --> Handler: Entry
+        deactivate EntryEntity
+
+        Handler -> DB: Add entry
+        Handler -> DB: SaveChangesAsync()
+
+        Handler --> Controller: EntryConfirmationDto
+    end
+end
+deactivate Handler
+
+Controller --> Frontend: 201 Created\n{entryId, entryNumber}
+deactivate Controller
+
+Frontend -> Frontend: Show confirmation page
+Frontend -> Participant: Display entry confirmation
+
+== Pick Random Winner ==
+
+actor Admin
+participant "Admin UI" as AdminUI
+participant "GiveawaysController" as Controller2
+participant "PickWinnerHandler" as PickHandler
+participant "Giveaway" as GiveawayEntity
+participant "RandomService" as Random
+database "Database" as DB2
+
+Admin -> AdminUI: Click "Pick Winner"
+AdminUI -> AdminUI: Show configuration dialog
+Admin -> AdminUI: Set winner count = 1
+Admin -> AdminUI: Click "Pick"
+
+AdminUI -> Controller2: POST /api/giveaways/{id}/pick-winner\n{count: 1, excludePrevious: true}
+activate Controller2
+
+Controller2 -> PickHandler: Handle(PickWinnerCommand)
+activate PickHandler
+
+PickHandler -> DB2: Get giveaway with entries
+DB2 --> PickHandler: Giveaway
+
+PickHandler -> GiveawayEntity: Validate can pick winner
+activate GiveawayEntity
+GiveawayEntity -> GiveawayEntity: Check status == Ended
+GiveawayEntity -> GiveawayEntity: Check has valid entries
+GiveawayEntity --> PickHandler: Valid
+deactivate GiveawayEntity
+
+PickHandler -> DB2: Get valid entries (exclude winners)
+DB2 --> PickHandler: List<Entry>
+
+PickHandler -> Random: GenerateSecureRandom(seed)
+activate Random
+Random --> PickHandler: RandomIndex
+deactivate Random
+
+PickHandler -> GiveawayEntity: CreateWinner(selectedEntry, selectionSeed)
+activate GiveawayEntity
+GiveawayEntity -> GiveawayEntity: Raise WinnerPickerInitiated
+GiveawayEntity -> GiveawayEntity: Raise RandomWinnerSelected
+GiveawayEntity --> PickHandler: Winner
+deactivate GiveawayEntity
+
+PickHandler -> DB2: Add winner
+PickHandler -> DB2: SaveChangesAsync()
+
+PickHandler --> Controller2: WinnerDto
+deactivate PickHandler
+
+Controller2 --> AdminUI: 200 OK\n{winnerId, entryId, participantName}
+deactivate Controller2
+
+AdminUI -> AdminUI: Show winner animation
+AdminUI -> Admin: Display winner result
+
+== Notify Winner ==
+
+Admin -> AdminUI: Click "Notify Winner"
+AdminUI -> Controller2: POST /api/winners/{id}/notify
+activate Controller2
+
+Controller2 -> PickHandler: Handle(NotifyWinnerCommand)
+activate PickHandler
+
+PickHandler -> DB2: Get winner
+DB2 --> PickHandler: Winner
+
+PickHandler -> GiveawayEntity: winner.Notify()
+activate GiveawayEntity
+GiveawayEntity -> GiveawayEntity: Set NotifiedAt
+GiveawayEntity -> GiveawayEntity: Raise WinnerNotified event
+GiveawayEntity --> PickHandler: void
+deactivate GiveawayEntity
+
+PickHandler -> DB2: SaveChangesAsync()
+
+note right of PickHandler
+  Event handler sends
+  email notification
+  asynchronously
+end note
+
+PickHandler --> Controller2: 200 OK
+deactivate PickHandler
+
+Controller2 --> AdminUI: Success
+deactivate Controller2
+
+AdminUI -> Admin: "Winner notified successfully"
+
+== Winner Confirms Prize ==
+
+actor Winner
+participant "Claim Page" as ClaimUI
+participant "WinnersController" as WController
+participant "ConfirmWinnerHandler" as ConfirmHandler
+database "Database" as DB3
+
+Winner -> ClaimUI: Click claim link from email
+ClaimUI -> ClaimUI: Display prize details
+Winner -> ClaimUI: Click "Accept Prize"
+
+ClaimUI -> WController: POST /api/winners/{id}/confirm\n{acceptTerms: true}
+activate WController
+
+WController -> ConfirmHandler: Handle(ConfirmWinnerCommand)
+activate ConfirmHandler
+
+ConfirmHandler -> DB3: Get winner with prize
+DB3 --> ConfirmHandler: Winner
+
+ConfirmHandler -> GiveawayEntity: winner.Confirm()
+activate GiveawayEntity
+GiveawayEntity -> GiveawayEntity: Validate status == Notified
+GiveawayEntity -> GiveawayEntity: Set ConfirmedAt
+GiveawayEntity -> GiveawayEntity: Set Status = Confirmed
+GiveawayEntity -> GiveawayEntity: Raise WinnerConfirmed event
+GiveawayEntity -> GiveawayEntity: Raise PrizeAwarded event
+GiveawayEntity --> ConfirmHandler: void
+deactivate GiveawayEntity
+
+ConfirmHandler -> DB3: SaveChangesAsync()
+
+ConfirmHandler --> WController: 200 OK
+deactivate ConfirmHandler
+
+WController --> ClaimUI: Success
+deactivate WController
+
+ClaimUI -> Winner: "Congratulations! Prize claimed successfully"
+
+@enduml

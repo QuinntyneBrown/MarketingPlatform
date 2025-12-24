@@ -1,0 +1,204 @@
+@startuml CampaignManagement_SequenceDiagram
+
+title Campaign Management - Sequence Diagrams
+
+== Create Campaign ==
+
+actor User
+participant "Angular App" as Frontend
+participant "CampaignsController" as Controller
+participant "CreateCampaignCommandHandler" as Handler
+participant "Campaign" as Aggregate
+database "MarketingPlatformContext" as DB
+
+User -> Frontend: Click "Create Campaign"
+Frontend -> Frontend: Open creation dialog
+User -> Frontend: Fill campaign details
+User -> Frontend: Click "Save"
+
+Frontend -> Controller: POST /api/campaigns\n{name, type, description}
+activate Controller
+
+Controller -> Handler: Handle(CreateCampaignCommand)
+activate Handler
+
+Handler -> Aggregate: Campaign.Create(name, type, businessId)
+activate Aggregate
+Aggregate -> Aggregate: Generate CampaignId
+Aggregate -> Aggregate: Generate Slug
+Aggregate -> Aggregate: Set Status = Draft
+Aggregate -> Aggregate: Raise CampaignCreated event
+Aggregate --> Handler: Campaign
+deactivate Aggregate
+
+Handler -> DB: Campaigns.Add(campaign)
+Handler -> DB: SaveChangesAsync()
+DB --> Handler: Success
+
+Handler -> Handler: campaign.ToDto()
+Handler --> Controller: CampaignDto
+deactivate Handler
+
+Controller --> Frontend: 201 Created\n{campaignDto}
+deactivate Controller
+
+Frontend -> Frontend: Navigate to campaign editor
+Frontend -> User: Display success toast
+
+== Publish Campaign ==
+
+User -> Frontend: Click "Publish"
+Frontend -> Frontend: Show confirmation dialog
+User -> Frontend: Confirm publish
+
+Frontend -> Controller: POST /api/campaigns/{id}/publish
+activate Controller
+
+Controller -> Handler: Handle(PublishCampaignCommand)
+activate Handler
+
+Handler -> DB: Campaigns.FindAsync(id)
+DB --> Handler: Campaign
+
+Handler -> Aggregate: campaign.Publish()
+activate Aggregate
+Aggregate -> Aggregate: Validate can publish
+alt Status != Draft && Status != Paused
+    Aggregate --> Handler: throw InvalidOperationException
+else Valid status
+    Aggregate -> Aggregate: Set Status = Published
+    Aggregate -> Aggregate: Raise CampaignPublished event
+    Aggregate --> Handler: void
+end
+deactivate Aggregate
+
+Handler -> DB: SaveChangesAsync()
+DB --> Handler: Success
+
+Handler --> Controller: CampaignDto
+deactivate Handler
+
+Controller --> Frontend: 200 OK\n{campaignDto}
+deactivate Controller
+
+Frontend -> User: Display "Campaign Published!" toast
+
+== Pause Campaign ==
+
+User -> Frontend: Click "Pause"
+Frontend -> Controller: POST /api/campaigns/{id}/pause
+activate Controller
+
+Controller -> Handler: Handle(PauseCampaignCommand)
+activate Handler
+
+Handler -> DB: Campaigns.FindAsync(id)
+DB --> Handler: Campaign
+
+Handler -> Aggregate: campaign.Pause()
+activate Aggregate
+Aggregate -> Aggregate: Validate Status == Published
+Aggregate -> Aggregate: Set Status = Paused
+Aggregate -> Aggregate: Raise CampaignPaused event
+Aggregate --> Handler: void
+deactivate Aggregate
+
+Handler -> DB: SaveChangesAsync()
+Handler --> Controller: CampaignDto
+deactivate Handler
+
+Controller --> Frontend: 200 OK
+deactivate Controller
+
+== Get Campaign List ==
+
+User -> Frontend: Navigate to /campaigns
+Frontend -> Controller: GET /api/campaigns?page=1&status=Published
+activate Controller
+
+Controller -> Handler: Handle(GetCampaignsQuery)
+activate Handler
+
+Handler -> DB: Campaigns.Where(businessId)\n.Where(status)\n.OrderBy(createdAt)\n.Skip().Take()
+DB --> Handler: List<Campaign>
+
+Handler -> Handler: campaigns.Select(c => c.ToDto())
+Handler --> Controller: PagedResult<CampaignDto>
+deactivate Handler
+
+Controller --> Frontend: 200 OK\n{items, totalCount, page}
+deactivate Controller
+
+Frontend -> Frontend: Render campaign cards
+Frontend -> User: Display campaign list
+
+== Delete Campaign ==
+
+User -> Frontend: Click "Delete" on draft campaign
+Frontend -> Frontend: Show confirmation dialog
+User -> Frontend: Confirm delete
+
+Frontend -> Controller: DELETE /api/campaigns/{id}
+activate Controller
+
+Controller -> Handler: Handle(DeleteCampaignCommand)
+activate Handler
+
+Handler -> DB: Campaigns.FindAsync(id)
+DB --> Handler: Campaign
+
+Handler -> Aggregate: Validate Status == Draft
+alt Status != Draft
+    Handler --> Controller: 400 Bad Request\n"Only draft campaigns can be deleted"
+else Valid for delete
+    Handler -> DB: Campaigns.Remove(campaign)
+    Handler -> DB: SaveChangesAsync()
+    Handler --> Controller: void
+end
+deactivate Handler
+
+Controller --> Frontend: 204 No Content
+deactivate Controller
+
+Frontend -> Frontend: Remove from list
+Frontend -> User: Display "Campaign deleted" toast
+
+== Clone Campaign ==
+
+User -> Frontend: Click "Clone" in campaign menu
+Frontend -> Frontend: Show clone dialog
+User -> Frontend: Enter new name
+User -> Frontend: Click "Clone"
+
+Frontend -> Controller: POST /api/campaigns/{id}/clone\n{newName}
+activate Controller
+
+Controller -> Handler: Handle(CloneCampaignCommand)
+activate Handler
+
+Handler -> DB: Campaigns.FindAsync(id)\n.Include(branding)\n.Include(settings)
+DB --> Handler: Campaign
+
+Handler -> Aggregate: originalCampaign.Clone(newName)
+activate Aggregate
+Aggregate -> Aggregate: Create new Campaign
+Aggregate -> Aggregate: Copy all properties
+Aggregate -> Aggregate: Generate new CampaignId
+Aggregate -> Aggregate: Set Status = Draft
+Aggregate -> Aggregate: Raise CampaignCloned event
+Aggregate --> Handler: Campaign (clone)
+deactivate Aggregate
+
+Handler -> DB: Campaigns.Add(clonedCampaign)
+Handler -> DB: SaveChangesAsync()
+
+Handler --> Controller: CampaignDto
+deactivate Handler
+
+Controller --> Frontend: 201 Created\n{campaignDto}
+deactivate Controller
+
+Frontend -> Frontend: Navigate to clone editor
+Frontend -> User: Display "Campaign cloned!" toast
+
+@enduml

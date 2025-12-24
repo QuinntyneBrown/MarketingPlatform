@@ -1,0 +1,158 @@
+<mxfile host="app.diagrams.net" modified="2025-12-24T00:00:00.000Z" agent="Mozilla/5.0" version="21.0.0">
+  <diagram name="Campaign Management Use Cases" id="use-cases">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- Title -->
+        <mxCell id="title" value="Campaign Management - Use Case Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="400" height="40" as="geometry"/>
+        </mxCell>
+        <!-- System Boundary -->
+        <mxCell id="system" value="Campaign Management System" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;verticalAlign=top;align=center;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="80" width="500" height="650" as="geometry"/>
+        </mxCell>
+        <!-- Marketing User Actor -->
+        <mxCell id="marketingUser" value="Marketing User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#1168BD;strokeColor=#0E5A9D;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="300" width="60" height="100" as="geometry"/>
+        </mxCell>
+        <!-- Participant Actor -->
+        <mxCell id="participant" value="Participant" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#08427B;strokeColor=#073B6B;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="900" y="300" width="60" height="100" as="geometry"/>
+        </mxCell>
+        <!-- System Actor -->
+        <mxCell id="systemActor" value="System&#xa;(Scheduler)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#666666;strokeColor=#333333;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="550" width="60" height="100" as="geometry"/>
+        </mxCell>
+        <!-- Use Cases -->
+        <!-- Phase 1 Use Cases -->
+        <mxCell id="uc1" value="Create Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="310" y="110" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc2" value="Edit Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="480" y="110" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc3" value="Publish Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="310" y="190" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc4" value="Pause Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="480" y="190" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc5" value="Resume Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="310" y="270" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc6" value="Complete Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="480" y="270" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc7" value="Delete Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="310" y="350" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc8" value="View Campaign List&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="480" y="350" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc9" value="Share Campaign&#xa;[Phase 1]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="310" y="430" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Phase 2 Use Cases -->
+        <mxCell id="uc10" value="Clone Campaign&#xa;[Phase 2]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="480" y="430" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc11" value="Archive Campaign&#xa;[Phase 2]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="310" y="510" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc12" value="Customize Branding&#xa;[Phase 2]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="480" y="510" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc13" value="Generate Embed Code&#xa;[Phase 2]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="310" y="590" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc14" value="Auto-Start/End&#xa;Campaign&#xa;[Phase 2]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="480" y="590" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Phase 3 Use Cases -->
+        <mxCell id="uc15" value="Add Custom CSS/HTML&#xa;[Phase 3]" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1">
+          <mxGeometry x="395" y="670" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <!-- Participant Use Case -->
+        <mxCell id="ucParticipant" value="View Published&#xa;Campaign" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="600" y="270" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Relationships -->
+        <mxCell id="rel1" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel2" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel3" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel4" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel5" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel6" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel7" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel8" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel9" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel10" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel11" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel12" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel13" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel14" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="systemActor" target="uc14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel15" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="marketingUser" target="uc15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel16" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="participant" target="ucParticipant">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- Include relationship -->
+        <mxCell id="include1" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;html=1;strokeColor=#000000;dashed=1;" edge="1" parent="1" source="uc3" target="uc1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- Legend -->
+        <mxCell id="legend" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="80" width="60" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1">
+          <mxGeometry x="820" y="110" width="20" height="15" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1txt" value="Phase 1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="105" width="60" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="820" y="140" width="20" height="15" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2txt" value="Phase 2" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="135" width="60" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1">
+          <mxGeometry x="820" y="170" width="20" height="15" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3txt" value="Phase 3" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="165" width="60" height="25" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

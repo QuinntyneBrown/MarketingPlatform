@@ -1,0 +1,161 @@
+@startuml GiveawayContest_ClassDiagram
+
+title Giveaway & Contest - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "MarketingPlatform.Core.Model.GiveawayAggregate" {
+
+    class Giveaway <<AggregateRoot>> {
+        +GiveawayId: Guid
+        +CampaignId: Guid
+        +Name: string
+        +Description: string
+        +Status: GiveawayStatus
+        +StartDate: DateTimeOffset
+        +EndDate: DateTimeOffset
+        +MaxEntriesPerParticipant: int?
+        +RequireRecaptcha: bool
+        --
+        +Launch(): void
+        +End(): void
+        +Extend(newEndDate): void
+        +PickRandomWinner(): Winner
+        +PickMultipleWinners(count): List<Winner>
+    }
+
+    class Entry <<Entity>> {
+        +EntryId: Guid
+        +GiveawayId: Guid
+        +ParticipantId: Guid
+        +Email: string
+        +Status: EntryStatus
+        +EntryCount: int
+        +SubmittedAt: DateTimeOffset
+        +IpAddress: string
+        +DeviceFingerprint: string
+        --
+        +Validate(): void
+        +Reject(reason): void
+        +Disqualify(reason): void
+        +AddBonusEntry(method, count): void
+    }
+
+    class Winner <<Entity>> {
+        +WinnerId: Guid
+        +GiveawayId: Guid
+        +EntryId: Guid
+        +PrizeId: Guid
+        +Status: WinnerStatus
+        +SelectedAt: DateTimeOffset
+        +NotifiedAt: DateTimeOffset?
+        +ConfirmedAt: DateTimeOffset?
+        +SelectionMethod: SelectionMethod
+        --
+        +Notify(): void
+        +Confirm(): void
+        +Decline(): void
+    }
+
+    class Prize <<Entity>> {
+        +PrizeId: Guid
+        +GiveawayId: Guid
+        +Name: string
+        +Description: string
+        +Value: decimal
+        +ImageUrl: string
+        +PrizeType: PrizeType
+        +Quantity: int
+        +Tier: int
+        --
+        +Award(winner): void
+    }
+
+    class EntryMethod <<ValueObject>> {
+        +Type: EntryMethodType
+        +EntryValue: int
+        +IsRequired: bool
+        +Configuration: Dictionary<string, string>
+    }
+
+    enum GiveawayStatus {
+        Draft
+        Active
+        Ended
+        Cancelled
+    }
+
+    enum EntryStatus {
+        Pending
+        Valid
+        Flagged
+        Disqualified
+    }
+
+    enum WinnerStatus {
+        Pending
+        Notified
+        Confirmed
+        Declined
+        Forfeited
+    }
+
+    enum PrizeType {
+        Physical
+        Digital
+        GiftCard
+        Experience
+    }
+
+    enum SelectionMethod {
+        Random
+        Manual
+        Alternate
+    }
+
+    enum EntryMethodType {
+        Form
+        EmailSignup
+        SocialFollow
+        SocialShare
+        Referral
+    }
+
+    Giveaway "1" *-- "0..*" Entry
+    Giveaway "1" *-- "0..*" Winner
+    Giveaway "1" *-- "1..*" Prize
+    Giveaway "1" *-- "1..*" EntryMethod
+    Winner --> Entry
+    Winner --> Prize
+}
+
+package "MarketingPlatform.Core.Model.GiveawayAggregate.Events" {
+
+    abstract class GiveawayDomainEvent {
+        +EventId: Guid
+        +GiveawayId: Guid
+        +Timestamp: DateTimeOffset
+    }
+
+    class GiveawayCreated extends GiveawayDomainEvent
+    class GiveawayLaunched extends GiveawayDomainEvent
+    class GiveawayEnded extends GiveawayDomainEvent
+    class EntrySubmitted extends GiveawayDomainEvent {
+        +EntryId: Guid
+        +ParticipantEmail: string
+    }
+    class RandomWinnerSelected extends GiveawayDomainEvent {
+        +WinnerId: Guid
+        +EntryId: Guid
+        +SelectionSeed: string
+    }
+    class WinnerNotified extends GiveawayDomainEvent {
+        +WinnerId: Guid
+    }
+    class PrizeAwarded extends GiveawayDomainEvent {
+        +WinnerId: Guid
+        +PrizeId: Guid
+    }
+}
+
+@enduml
